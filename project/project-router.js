@@ -95,6 +95,31 @@ router.get('/tasks', async (req, res) => {
         res.status(500).json({ message: 'Failed to retrieve tasks.' });
 
     }
+});
+
+router.get('/full', async (req, res) => {
+    try {
+        const full = await project.getFull();
+        console.log(full)
+        if (full) {
+            for (let i = 0; i < full.tasks.length; i++){
+                full.tasks[i].task_completed === 0 ? full.tasks[i].task_completed = false : full.tasks[i].task_completed = true;
+            }
+            for (let i = 0; i < full.length; i++){
+                full[i].project_completed === 0 ? full[i].project_completed = false : full[i].project_completed = true;
+            }
+            res.status(200).json(full);
+        }
+        else {
+            res.status(404).json({ message: 'Could not find projects.' })
+
+        }
+    }
+    catch (err) {
+        res.status(500).json({ message: 'Failed to retrieve projects.' });
+
+    }
+
 })
 
 
