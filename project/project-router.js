@@ -48,8 +48,8 @@ router.post('/', async (req, res) => {
 router.get('/', async (req, res) => {
     try {
         const projects = await project.getProjects();
-        console.log(projects)
         if (projects) {
+            
             for (let i = 0; i < projects.length; i++){
                 projects[i].project_completed === 0 ? projects[i].project_completed = false : projects[i].project_completed = true
             }
@@ -88,7 +88,6 @@ router.get('/tasks', async (req, res) => {
         }
         else {
             res.status(404).json({ message: 'Could not find tasks.' })
-
         }
     }
     catch (err) {
@@ -99,28 +98,26 @@ router.get('/tasks', async (req, res) => {
 
 router.get('/full', async (req, res) => {
     try {
-        const full = await project.getFull();
-        console.log(full)
+        const full = await project.getProjects();
         if (full) {
-            for (let i = 0; i < full.tasks.length; i++){
-                full.tasks[i].task_completed === 0 ? full.tasks[i].task_completed = false : full.tasks[i].task_completed = true;
-            }
             for (let i = 0; i < full.length; i++){
                 full[i].project_completed === 0 ? full[i].project_completed = false : full[i].project_completed = true;
+                full[i].tasks = await project.getFullTasks(full[i].id);
+                for(let j = 0; j < full[i].tasks.length; j++) {
+                    full[i].tasks[j].task_completed === 0 ? full[i].tasks[j].task_completed = false : full[i].tasks[j].task_completed = true
+                }
+                full[i].resources = await project.getFullResources(full[i].id);
             }
             res.status(200).json(full);
         }
         else {
             res.status(404).json({ message: 'Could not find projects.' })
-
         }
     }
     catch (err) {
         res.status(500).json({ message: 'Failed to retrieve projects.' });
-
     }
-
-})
+});
 
 
 module.exports = router;
